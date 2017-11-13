@@ -448,7 +448,10 @@ namespace Kartverket.Geosynkronisering.Subscriber.BL
 
                 dataset.AbortedEndIndex = GetAbortedEndIndex(changeLog);
                 dataset.AbortedTransaction = i;
-                dataset.AbortedChangelogPath = changelogFilename;
+                if(File.Exists(changelogFilename))
+                    dataset.AbortedChangelogPath = changelogFilename;
+                else if(File.Exists(changelogFilename + ".zip"))
+                    dataset.AbortedChangelogPath = changelogFilename + ".zip";
 
                 SubscriberDatasetManager.UpdateDataset(dataset);
                 status = DoWfsTransaction(changeLog, datasetId, i + 1);
@@ -608,10 +611,8 @@ namespace Kartverket.Geosynkronisering.Subscriber.BL
             {
                 var dataset = SubscriberDatasetManager.GetDataset(datasetId);
 
-                var outPath = Path.GetDirectoryName(zipFile);
-
                 var downloadController = new DownloadController();
-                downloadController.UnpackZipFile(zipFile, outPath);
+                downloadController.UnpackZipFile(zipFile);
 
 
                 // Check if zip contains folder or file - Could be more than one file
